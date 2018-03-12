@@ -5,6 +5,7 @@ class ApiController < ApplicationController
 
   def index
     @res = @model_class
+    @res = @res.offset(params[:offset].to_i) if params[:offset]
     @res = @res.limit(params[:limit].to_i) if params[:limit]
     select_list = permitted_select_values
     @res = @res.select(select_list) if select_list
