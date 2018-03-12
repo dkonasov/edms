@@ -5,13 +5,15 @@ class ApiController < ApplicationController
 
   def index
     @res = @model_class
+    count = @res.ransack(params[:q]).result.count if params[:limit] && params[:offset]
     @res = @res.offset(params[:offset].to_i) if params[:offset]
     @res = @res.limit(params[:limit].to_i) if params[:limit]
     select_list = permitted_select_values
     @res = @res.select(select_list) if select_list
-    @res = @res.ransack(params[:q]).result
+    @res = @res.ransack(params[:q])
     
-    render json: @res
+    response.set_header('Content-Range', "#{@model_name.downcase} #{params[:offset].to_i + 1}-#{params[:offset].to_i + params[:limit].to_i}/#{count}") if params[:offset] && params[:limit] 
+    render json: @res.result
   end
 
   def show
@@ -46,11 +48,11 @@ class ApiController < ApplicationController
     end
 
     def prepare_model
-      model_name = get_model_name
+      @model_name = get_model_name
 
-      raise "Model class not present" if model_name.nil? || model_name.strip == ""
+      raise "Model class not present" if @model_name.nil? || @model_name.strip == ""
       
-      @model_class = model_name.constantize
+      @model_class = @model_name.constantize
       
       raise "Model class is not ActiveRecord" unless @model_class < ActiveRecord::Base
     end
