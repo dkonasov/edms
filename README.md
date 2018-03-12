@@ -6,6 +6,7 @@
 
 ## Install and run
 * bundle install
+* rake db:schema:load
 * rails server
 
 ## Test entity fields
