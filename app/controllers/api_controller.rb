@@ -13,7 +13,7 @@ class ApiController < ApplicationController
     @res = @res.ransack(params[:q])
     
     response.set_header('Content-Range', "#{@model_name.downcase} #{params[:offset].to_i + 1}-#{params[:offset].to_i + params[:limit].to_i}/#{count}") if params[:offset] && params[:limit] 
-    render json: @res.result
+    if !params[:headers_only] then render json: @res.result else head :no_content end
   end
 
   def show
