@@ -11,8 +11,11 @@ class ApiController < ApplicationController
     select_list = permitted_select_values
     @res = @res.select(select_list) if select_list
     @res = @res.ransack(params[:q])
-    
-    response.set_header('Content-Range', "#{@model_name.downcase} #{params[:offset].to_i + 1}-#{params[:offset].to_i + params[:limit].to_i}/#{count}") if params[:offset] && params[:limit] 
+
+    if params[:offset] && params[:limit]
+      response.set_header('Content-Range', "#{@model_name.downcase} #{params[:offset].to_i + 1}-#{params[:offset].to_i + params[:limit].to_i}/#{count}")
+      response.set_header('Access-Control-Expose-Headers', 'Content-Range')
+    end
     if !params[:headers_only] then render json: @res.result else head :no_content end
   end
 
